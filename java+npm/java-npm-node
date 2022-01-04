@@ -1,0 +1,12 @@
+FROM node:13-alpine AS NODE
+COPY ./ ./
+RUN npm run build
+
+FROM maven:3.6-jdk-8-alpine AS MAVEN_BUILD
+COPY --from=NODE ./ ./
+RUN mvn clean package -DskipTests
+
+FROM openjdk:8-alpine
+COPY --from=MAVEN_BUILD ./target/*.jar ./comments.jar
+#ENTRYPOINT ["java","-jar", "./target/cloud-atlaskit.jar"]
+CMD ["/bin/sh", "-c", "java -jar comments*.jar"]
