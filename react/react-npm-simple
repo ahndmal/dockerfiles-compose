@@ -1,0 +1,9 @@
+###### NODE
+FROM node:13-alpine AS NODE
+ENV NODE_ENV=production
+#WORKDIR /cloud-atlaskit-test
+COPY ["package.json", "package-lock.json*", "./"]
+RUN npm install --production    # no need as run in prebuild ?
+COPY ./ ./
+
+CMD ["npm", "run", "dev"]
