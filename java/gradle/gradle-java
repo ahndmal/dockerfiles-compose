@@ -1,0 +1,15 @@
+FROM gradle:7.2-jdk11 AS GR_BUILD
+#WORKDIR app
+COPY ./ ./
+#RUN gradle build -x test && ls
+#RUN gradle buildJar
+RUN gradle bootJar
+#RUN pwd && ls -lt
+#RUN ls ./build/libs
+
+FROM adoptopenjdk:11
+#RUN ls && echo "-----" && ls /home
+#COPY --from=GR_BUILD ./build/ ./build
+COPY --from=GR_BUILD /home/gradle/build/libs/*.jar ./atl-mkt.jar
+#RUN ls -lt
+CMD ["/bin/sh", "-c", "java -jar atl*.jar"]
