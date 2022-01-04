@@ -1,0 +1,74 @@
+version: '3.2'
+services:
+  rabbit:
+    image: rabbitmq
+    ports:
+      - 5672:5672
+      - 15672:15672
+    expose: 
+      - "15672"
+      - "5672"
+    container_name: rabbit1
+#    volumes:
+#        - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
+#        - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
+    networks:
+      - micros-1
+    restart: always
+  micro1:
+    image: sb-micro-1:0.0.2
+    container_name: sb-micro-1
+    environment:
+      - PORT=7634
+      - DB_URL=r2dbc:postgresql://94.228.113.90/hostman
+      - R2_USERNAME=hostman
+      - R2_PASSWORD=cbfa3864
+      - RSOCKET_PORT=7635   
+    ports:
+      - 7634:7634
+      - 7635:7635
+    networks:
+      - micros-1
+    expose: 
+      - "7634"
+      - "7635"
+    depends_on:
+      - rabbit
+    restart: always
+  micro-2:
+    image: sb-micro-2:0.0.2
+    container_name: sb-micro-2
+    ports:
+      - 8085:8085
+      - 8086:8086
+    expose:
+      - "8086"
+      - "8085"
+    depends_on:
+      - micro1
+      - rabbit
+    environment:
+      - PORT=8085
+      - RSOCK_PORT=8086
+    networks:
+      - micros-1
+    restart: always  
+  micro-3:
+    image: sb-micro-3:0.0.2
+    container_name: sb-micro-3
+    ports:
+      - 8083:8083
+    expose:
+      - "8083"
+    depends_on:
+      - micro-2
+      - micro1
+      - rabbit
+    environment:
+      - PORT=8083
+    networks:
+      - micros-1
+    restart: always  
+networks:
+  micros-1:
+    #driver: bridge

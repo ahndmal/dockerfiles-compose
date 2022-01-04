@@ -1,0 +1,26 @@
+###### NODE
+FROM node:13-alpine AS NODE
+ENV NODE_ENV=production
+#WORKDIR /cloud-atlaskit-test
+COPY ["package.json", "package-lock.json*", "./"]
+RUN npm install --production    # no need as run in prebuild ?
+COPY ./ ./
+
+###### JAVA
+# better to use ./mvnw not to use full MVN image - https://docs.docker.com/language/java/build-images/
+FROM maven:3.6-jdk-8-alpine AS MAVEN_BUILD
+#COPY ["pom.xml", "./"]
+COPY ["./", "./"]
+#COPY --from=NODE ./ ./
+RUN mvn clean package -DskipTests
+
+#COPY /target/*.jar cloud-atlaskit.jar
+
+FROM NODE
+# to convert JS with webpack
+RUN npm run build
+COPY 
+
+FROM openjdk:8-alpine
+COPY --from=MAVEN_BUILD /target/*.jar cloud-atlaskit.jar
+ENTRYPOINT ["java","-jar", "cloud-atlaskit.jar"]

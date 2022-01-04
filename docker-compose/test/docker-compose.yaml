@@ -1,0 +1,14 @@
+version: '3.9'
+services:
+  sb-test3:
+    image: test1
+    container_name: sb-test1
+    restart: no
+    volumes: 
+      - /etc/test:/app
+    # ports:
+    #   - 8082:8082
+    environment:
+      - cat=Murzik
+      - dove=Vasyl
+    # command: node src/app.js  
