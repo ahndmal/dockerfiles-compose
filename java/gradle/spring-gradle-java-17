@@ -1,0 +1,8 @@
+FROM gradle:7.2-jdk11 AS GR_BUILD
+#WORKDIR app
+COPY ./ ./
+RUN gradle bootJar
+
+FROM adoptopenjdk:11
+COPY --from=GR_BUILD /home/gradle/build/libs/*.jar ./app.jar
+CMD ["/bin/sh", "-c", "java -jar app*.jar"]
