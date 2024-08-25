@@ -1,0 +1,12 @@
+FROM openjdk:21-slim AS build                                                                                                                                         
+COPY . .                                                                                                                                                              
+# https://github.com/JetBrains/kotlin/releases/tag/v2.0.20                                                                                                            
+RUN apt-get -y update && apt-get install -y wget unzip \                                                                                                              
+   && wget https://github.com/JetBrains/kotlin/releases/download/v2.0.20/kotlin-compiler-2.0.20.zip \                                                                
+   && unzip kotlin-compiler-2.0.20.zip \                                                                                                                             
+   kotlinc/bin/kotlinc src/main.kt -include-runtime -d main.jar                                                                                                   
+
+# run app                                                                                                                                                             
+FROM amazoncorretto:21-alpine                                                                                                                                         
+COPY --from=build /main.jar /main.jar                                                                                                                                 
+ENTRYPOINT ["java","-jar","/main.jar"] 
