@@ -1,0 +1,9 @@
+FROM esolang/kotlin:2.4.0 AS BUILD
+COPY . .
+RUN kotlinc src/main.kt -include-runtime -d main.jar
+
+# run app
+FROM openjdk:21-slim
+ARG JAR_FILE=main.jar
+COPY ${JAR_FILE} main.jar
+ENTRYPOINT ["java","-jar","main.jar"]
